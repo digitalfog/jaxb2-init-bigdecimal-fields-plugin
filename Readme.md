@@ -14,6 +14,7 @@ Status
 ------
 
 [ ![Build Status](https://travis-ci.org/andriimatsokha/jaxb2-init-bigdecimal-fields-plugin.png?branch=master)](https://travis-ci.org/andriimatsokha/jaxb2-init-bigdecimal-fields-plugin)
+[ ![Download](https://api.bintray.com/packages/andriimatsokha/maven/jaxb2-init-bigdecimal-fields-plugin/images/download.svg) ](https://bintray.com/andriimatsokha/maven/jaxb2-init-bigdecimal-fields-plugin/_latestVersion)
 
 ## Usage
 
