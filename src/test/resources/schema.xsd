@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           jaxb:extensionBindingPrefixes="bd"
+           jaxb:version="2.1"
+           xmlns:bd="http://init.bigdecimal">
+
+    <xs:complexType name="Foo">
+        <xs:sequence>
+            <xs:element name="bar" type="xs:decimal">
+                <xs:annotation>
+                    <xs:appinfo>
+                        <bd:setStaticValue>ZERO</bd:setStaticValue>
+                        <bd:executeMethod>
+                            <name>setScale</name>
+                            <param type="int">2</param>
+                            <param type="BigDecimal">ROUND_HALF_UP</param>
+                        </bd:executeMethod>
+                    </xs:appinfo>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="baz" type="xs:decimal">
+                <xs:annotation>
+                    <xs:appinfo>
+                        <bd:setStaticValue>valueOf(5)</bd:setStaticValue>
+                        <bd:executeMethod>
+                            <name>pow</name>
+                            <param type="int">2</param>
+                        </bd:executeMethod>
+                    </xs:appinfo>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>
