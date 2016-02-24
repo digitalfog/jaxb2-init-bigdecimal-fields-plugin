@@ -14,6 +14,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 import static jaxb2.plugin.fields.init.InitBigDecimalFieldsPlugin.ATTR_EXECUTE_METHOD_QNAME;
 import static jaxb2.plugin.fields.init.InitBigDecimalFieldsPlugin.ATTR_STATIC_VALUE_QNAME;
@@ -31,6 +33,7 @@ public class FieldInitExpressionBuilder {
     private static final String EXECUTE_METHOD_PARAM_CLASS_ATTRIBUTE = "class";
 
     private JExpression fieldInitExpression;
+    private static Map<String, JClass> refClassesMap = new HashMap<>();
 
     public void apply(CPluginCustomization customization, JCodeModel codeModel, ErrorHandler errorHandler, Locator fieldLocator) throws SAXException {
 
@@ -73,7 +76,7 @@ public class FieldInitExpressionBuilder {
                 String paramValue = paramTag.getTextContent();
                 if (ParamType.STATIC.equals(paramType)) {
                     if (null != classAttribute) {
-                        JClass refClass = codeModel.ref(classAttribute.getTextContent());
+                        JClass refClass = refClassesMap.computeIfAbsent(classAttribute.getTextContent(), k -> codeModel.ref(classAttribute.getTextContent()));
                         jInvocation = jInvocation.arg(refClass.staticRef(paramValue));
                     } else {
                         fatal("Tag <" + EXECUTE_METHOD_PARAM + " " + EXECUTE_METHOD_PARAM_TYPE_ATTRIBUTE + "=\"" + ParamType.STATIC.name() + "\"" + "> must contain attribute **" + EXECUTE_METHOD_PARAM_CLASS_ATTRIBUTE + "**", errorHandler, fieldLocator);
