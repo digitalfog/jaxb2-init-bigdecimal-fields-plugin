@@ -90,14 +90,13 @@ public class InitBigDecimalFieldsPlugin extends AbstractParameterizablePlugin {
      */
     private JExpression buildFieldInitExpression(List<CPluginCustomization> bdCustomizations, ClassOutline classOutline, ErrorHandler errorHandler, Locator fieldLocator) throws SAXException {
         JCodeModel codeModel = classOutline.implClass.owner();
-        JClass refBigDecimal = codeModel.ref(BigDecimal.class);
 
         FieldInitExpressionBuilder fieldInitExpressionBuilder = new FieldInitExpressionBuilder();
         for (CPluginCustomization customization : bdCustomizations) {
             //Mark that this customization was processed
             customization.markAsAcknowledged();
 
-            fieldInitExpressionBuilder.apply(customization, refBigDecimal, errorHandler, fieldLocator);
+            fieldInitExpressionBuilder.apply(customization, codeModel, errorHandler, fieldLocator);
         }
         return fieldInitExpressionBuilder.getFieldInitExpression();
     }

@@ -43,7 +43,7 @@ Status
                 <bd:executeMethod>
                     <name>setScale</name>
                     <param type="int">2</param>
-                    <param type="BigDecimal">ROUND_HALF_UP</param>
+                    <param type="static" class="java.math.BigDecimal">ROUND_HALF_UP</param>
                 </bd:executeMethod>
             </xs:appinfo>
         </xs:annotation>
@@ -73,10 +73,11 @@ For example, this customization:
 
 2. **`<bd:executeMethod>`** - executes method on previously initialized value, so it must be placed after `<setStaticValue>` tag.<br>
     * `<name>` - method name
-    * `<param type="">` - parameter that will be passed in method<br>
+    * `<param type="" class="">` - parameter that will be passed in method<br>
         Attribute `type` accepts values:
         * `int` - param will be qualified as java `int`
-        * `BigDecimal` - param will be qualified as static field in `java.math.BigDecimal` class
+        * `static` - param will be qualified as static field in class defined in additional attribute `class`
+        Attribute `class` is required only with `type="static"`.
 
     For example, this customization:
     ```xml
@@ -87,7 +88,7 @@ For example, this customization:
                 <bd:executeMethod>
                     <name>setScale</name>
                     <param type="int">2</param>
-                    <param type="BigDecimal">ROUND_HALF_UP</param>
+                    <param type="static" class="java.math.BigDecimal">ROUND_HALF_UP</param>
                 </bd:executeMethod>
             </xs:appinfo>
         </xs:annotation>
@@ -137,9 +138,9 @@ Below configuration assumes:
         </args>
         <plugins>
             <plugin>
-                <groupId>jaxb2-init-plugin</groupId>
-                <artifactId>init-bigdecimal-fields</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <groupId>jaxb2-init-bigdecimal-fields</groupId>
+                <artifactId>jaxb2-init-bigdecimal-fields</artifactId>
+                <version>1.0.1</version>
             </plugin>
         </plugins>
     </configuration>

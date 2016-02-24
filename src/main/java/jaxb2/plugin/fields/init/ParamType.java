@@ -4,7 +4,7 @@ package jaxb2.plugin.fields.init;
  * Enum that contains param-types which we will process
  */
 public enum ParamType {
-    BIG_DECIMAL("BigDecimal"), INT("int");
+    INT("int"), STATIC("static");
 
     private String name;
 

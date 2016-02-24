@@ -1,6 +1,7 @@
 package jaxb2.plugin.fields.init;
 
 import com.sun.codemodel.JClass;
+import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JExpression;
 import com.sun.codemodel.JInvocation;
@@ -11,6 +12,8 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+
+import java.math.BigDecimal;
 
 import static jaxb2.plugin.fields.init.InitBigDecimalFieldsPlugin.ATTR_EXECUTE_METHOD_QNAME;
 import static jaxb2.plugin.fields.init.InitBigDecimalFieldsPlugin.ATTR_STATIC_VALUE_QNAME;
@@ -25,14 +28,16 @@ public class FieldInitExpressionBuilder {
     private static final String EXECUTE_METHOD_NAME = "name";
     private static final String EXECUTE_METHOD_PARAM = "param";
     private static final String EXECUTE_METHOD_PARAM_TYPE_ATTRIBUTE = "type";
+    private static final String EXECUTE_METHOD_PARAM_CLASS_ATTRIBUTE = "class";
 
     private JExpression fieldInitExpression;
 
-    public void apply(CPluginCustomization customization, JClass refBigDecimal, ErrorHandler errorHandler, Locator fieldLocator) throws SAXException {
+    public void apply(CPluginCustomization customization, JCodeModel codeModel, ErrorHandler errorHandler, Locator fieldLocator) throws SAXException {
+
         if (ATTR_STATIC_VALUE_QNAME.getLocalPart().equals(customization.element.getLocalName())) {
-            applyStaticValue(customization, refBigDecimal);
+            applyStaticValue(customization, codeModel);
         } else if (ATTR_EXECUTE_METHOD_QNAME.getLocalPart().equals(customization.element.getLocalName())) {
-            applyMethodExecution(customization, refBigDecimal, errorHandler, fieldLocator);
+            applyMethodExecution(customization, codeModel, errorHandler, fieldLocator);
         }
     }
 
@@ -40,12 +45,13 @@ public class FieldInitExpressionBuilder {
         return this.fieldInitExpression;
     }
 
-    private void applyStaticValue(CPluginCustomization customization, JClass refBigDecimal) {
+    private void applyStaticValue(CPluginCustomization customization, JCodeModel codeModel) {
+        JClass refBigDecimal = codeModel.ref(BigDecimal.class);
         String tagText = customization.element.getTextContent();
         fieldInitExpression = refBigDecimal.staticRef(tagText);
     }
 
-    private void applyMethodExecution(CPluginCustomization customization, JClass refBigDecimal, ErrorHandler errorHandler, Locator fieldLocator) throws SAXException {
+    private void applyMethodExecution(CPluginCustomization customization, JCodeModel codeModel, ErrorHandler errorHandler, Locator fieldLocator) throws SAXException {
         if (null == fieldInitExpression) {
             fatal("Tag <" + ATTR_EXECUTE_METHOD_QNAME.getLocalPart() + "> can't be first in the list of customizations. Hint: use <" + ATTR_STATIC_VALUE_QNAME.getLocalPart() + "> tag as first one.", errorHandler, fieldLocator);
         }
@@ -61,11 +67,17 @@ public class FieldInitExpressionBuilder {
         for (int i = 0; i < customization.element.getElementsByTagName(EXECUTE_METHOD_PARAM).getLength(); i++) {
             Node paramTag = customization.element.getElementsByTagName(EXECUTE_METHOD_PARAM).item(i);
             Node typeAttribute = paramTag.getAttributes().getNamedItem(EXECUTE_METHOD_PARAM_TYPE_ATTRIBUTE);
+            Node classAttribute = paramTag.getAttributes().getNamedItem(EXECUTE_METHOD_PARAM_CLASS_ATTRIBUTE);
             if (null != typeAttribute) {
                 String paramType = typeAttribute.getTextContent();
                 String paramValue = paramTag.getTextContent();
-                if (ParamType.BIG_DECIMAL.equals(paramType)) {
-                    jInvocation = jInvocation.arg(refBigDecimal.staticRef(paramValue));
+                if (ParamType.STATIC.equals(paramType)) {
+                    if (null != classAttribute) {
+                        JClass refClass = codeModel.ref(classAttribute.getTextContent());
+                        jInvocation = jInvocation.arg(refClass.staticRef(paramValue));
+                    } else {
+                        fatal("Tag <" + EXECUTE_METHOD_PARAM + " " + EXECUTE_METHOD_PARAM_TYPE_ATTRIBUTE + "=\"" + ParamType.STATIC.name() + "\"" + "> must contain attribute **" + EXECUTE_METHOD_PARAM_CLASS_ATTRIBUTE + "**", errorHandler, fieldLocator);
+                    }
                 } else if (ParamType.INT.equals(paramType)) {
                     jInvocation = jInvocation.arg(JExpr.lit(Integer.parseInt(paramValue)));
                 } else {

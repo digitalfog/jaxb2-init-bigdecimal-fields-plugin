@@ -14,7 +14,7 @@
                         <bd:executeMethod>
                             <name>setScale</name>
                             <param type="int">2</param>
-                            <param type="BigDecimal">ROUND_HALF_UP</param>
+                            <param type="static" class="java.math.BigDecimal">ROUND_HALF_UP</param>
                         </bd:executeMethod>
                     </xs:appinfo>
                 </xs:annotation>
