@@ -1,6 +1,5 @@
 package jaxb2.plugin.fields.init;
 
-import com.sun.codemodel.JClass;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JExpression;
 import com.sun.codemodel.JFieldVar;
@@ -30,12 +29,6 @@ public class InitBigDecimalFieldsPlugin extends AbstractParameterizablePlugin {
     private static final String OPTION_NAME = "Xinit-bigdecimal-fields";
 
     private static final String NAMESPACE_URI = "http://init.bigdecimal";
-
-    /**
-     * Tags that will be processed during plugin execution
-     */
-    public static final QName ATTR_STATIC_VALUE_QNAME = new QName(NAMESPACE_URI, "setStaticValue");
-    public static final QName ATTR_EXECUTE_METHOD_QNAME = new QName(NAMESPACE_URI, "executeMethod");
 
     @Override
     public String getOptionName() {
@@ -116,6 +109,11 @@ public class InitBigDecimalFieldsPlugin extends AbstractParameterizablePlugin {
     **/
     @Override
     public Collection<QName> getCustomizationElementNames() {
-        return Arrays.asList(ATTR_STATIC_VALUE_QNAME, ATTR_EXECUTE_METHOD_QNAME);
+        return Arrays.asList(
+                new QName(NAMESPACE_URI, Names.STATIC_VALUE),
+                new QName(NAMESPACE_URI, Names.EXECUTE_METHOD),
+                new QName(NAMESPACE_URI, Names.EXECUTE_METHOD_NAME),
+                new QName(NAMESPACE_URI, Names.EXECUTE_METHOD_PARAM)
+        );
     }
 }
