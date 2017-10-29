@@ -41,9 +41,9 @@ Status
             <xs:appinfo>
                 <bd:setStaticValue>ZERO</bd:setStaticValue>
                 <bd:executeMethod>
-                    <name>setScale</name>
-                    <param type="int">2</param>
-                    <param type="static" class="java.math.BigDecimal">ROUND_HALF_UP</param>
+                    <bd:name>setScale</bd:name>
+                    <bd:param type="int">2</bd:param>
+                    <bd:param type="static" class="java.math.BigDecimal">ROUND_HALF_UP</bd:param>
                 </bd:executeMethod>
             </xs:appinfo>
         </xs:annotation>
@@ -86,9 +86,9 @@ For example, this customization:
             <xs:appinfo>
                 <bd:setStaticValue>ZERO</bd:setStaticValue>
                 <bd:executeMethod>
-                    <name>setScale</name>
-                    <param type="int">2</param>
-                    <param type="static" class="java.math.BigDecimal">ROUND_HALF_UP</param>
+                    <bd:name>setScale</bd:name>
+                    <bd:param type="int">2</bd:param>
+                    <bd:param type="static" class="java.math.BigDecimal">ROUND_HALF_UP</bd:param>
                 </bd:executeMethod>
             </xs:appinfo>
         </xs:annotation>
