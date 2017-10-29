@@ -17,29 +17,18 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-import static jaxb2.plugin.fields.init.InitBigDecimalFieldsPlugin.ATTR_EXECUTE_METHOD_QNAME;
-import static jaxb2.plugin.fields.init.InitBigDecimalFieldsPlugin.ATTR_STATIC_VALUE_QNAME;
-
 /**
  * Helper which builds JExpression for field instantiation
  */
 public class FieldInitExpressionBuilder {
-    /**
-     * Inner tags and attributes that will be processed during plugin execution
-     */
-    private static final String EXECUTE_METHOD_NAME = "name";
-    private static final String EXECUTE_METHOD_PARAM = "param";
-    private static final String EXECUTE_METHOD_PARAM_TYPE_ATTRIBUTE = "type";
-    private static final String EXECUTE_METHOD_PARAM_CLASS_ATTRIBUTE = "class";
 
     private JExpression fieldInitExpression;
     private static Map<String, JClass> refClassesMap = new HashMap<>();
 
     public void apply(CPluginCustomization customization, JCodeModel codeModel, ErrorHandler errorHandler, Locator fieldLocator) throws SAXException {
-
-        if (ATTR_STATIC_VALUE_QNAME.getLocalPart().equals(customization.element.getLocalName())) {
+        if (Names.STATIC_VALUE.equals(customization.element.getLocalName())) {
             applyStaticValue(customization, codeModel);
-        } else if (ATTR_EXECUTE_METHOD_QNAME.getLocalPart().equals(customization.element.getLocalName())) {
+        } else if (Names.EXECUTE_METHOD.equals(customization.element.getLocalName())) {
             applyMethodExecution(customization, codeModel, errorHandler, fieldLocator);
         }
     }
@@ -56,21 +45,21 @@ public class FieldInitExpressionBuilder {
 
     private void applyMethodExecution(CPluginCustomization customization, JCodeModel codeModel, ErrorHandler errorHandler, Locator fieldLocator) throws SAXException {
         if (null == fieldInitExpression) {
-            fatal("Tag <" + ATTR_EXECUTE_METHOD_QNAME.getLocalPart() + "> can't be first in the list of customizations. Hint: use <" + ATTR_STATIC_VALUE_QNAME.getLocalPart() + "> tag as first one.", errorHandler, fieldLocator);
+            fatal("Tag <" + Names.EXECUTE_METHOD + "> can't be first in the list of customizations. Hint: use <" + Names.STATIC_VALUE + "> tag as first one.", errorHandler, fieldLocator);
         }
 
         //Process method name
-        if (customization.element.getElementsByTagName(EXECUTE_METHOD_NAME).getLength() != 1) {
-            fatal("Tag <" + ATTR_EXECUTE_METHOD_QNAME.getLocalPart() + "> must contain exactly one inner tag <" + EXECUTE_METHOD_NAME + ">...</" + EXECUTE_METHOD_NAME + ">", errorHandler, fieldLocator);
+        if (customization.element.getElementsByTagNameNS(Names.SCHEMA_NAME, Names.EXECUTE_METHOD_NAME).getLength() != 1) {
+            fatal("Tag <" + Names.EXECUTE_METHOD_NAME + "> must contain exactly one inner tag <" + Names.EXECUTE_METHOD_NAME + ">...</" + Names.EXECUTE_METHOD_NAME + ">", errorHandler, fieldLocator);
         }
-        String methodName = customization.element.getElementsByTagName(EXECUTE_METHOD_NAME).item(0).getTextContent();
+        String methodName = customization.element.getElementsByTagNameNS(Names.SCHEMA_NAME, Names.EXECUTE_METHOD_NAME).item(0).getTextContent();
         JInvocation jInvocation = fieldInitExpression.invoke(methodName);
 
         //Process method params
-        for (int i = 0; i < customization.element.getElementsByTagName(EXECUTE_METHOD_PARAM).getLength(); i++) {
-            Node paramTag = customization.element.getElementsByTagName(EXECUTE_METHOD_PARAM).item(i);
-            Node typeAttribute = paramTag.getAttributes().getNamedItem(EXECUTE_METHOD_PARAM_TYPE_ATTRIBUTE);
-            Node classAttribute = paramTag.getAttributes().getNamedItem(EXECUTE_METHOD_PARAM_CLASS_ATTRIBUTE);
+        for (int i = 0; i < customization.element.getElementsByTagNameNS(Names.SCHEMA_NAME, Names.EXECUTE_METHOD_PARAM).getLength(); i++) {
+            Node paramTag = customization.element.getElementsByTagNameNS(Names.SCHEMA_NAME, Names.EXECUTE_METHOD_PARAM).item(i);
+            Node typeAttribute = paramTag.getAttributes().getNamedItem(Names.EXECUTE_METHOD_PARAM_TYPE_ATTRIBUTE);
+            Node classAttribute = paramTag.getAttributes().getNamedItem(Names.EXECUTE_METHOD_PARAM_CLASS_ATTRIBUTE);
             if (null != typeAttribute) {
                 String paramType = typeAttribute.getTextContent();
                 String paramValue = paramTag.getTextContent();
@@ -79,15 +68,15 @@ public class FieldInitExpressionBuilder {
                         JClass refClass = refClassesMap.computeIfAbsent(classAttribute.getTextContent(), k -> codeModel.ref(classAttribute.getTextContent()));
                         jInvocation = jInvocation.arg(refClass.staticRef(paramValue));
                     } else {
-                        fatal("Tag <" + EXECUTE_METHOD_PARAM + " " + EXECUTE_METHOD_PARAM_TYPE_ATTRIBUTE + "=\"" + ParamType.STATIC.name() + "\"" + "> must contain attribute **" + EXECUTE_METHOD_PARAM_CLASS_ATTRIBUTE + "**", errorHandler, fieldLocator);
+                        fatal("Tag <" + Names.EXECUTE_METHOD_PARAM + " " + Names.EXECUTE_METHOD_PARAM_TYPE_ATTRIBUTE + "=\"" + ParamType.STATIC.name() + "\"" + "> must contain attribute **" + Names.EXECUTE_METHOD_PARAM_CLASS_ATTRIBUTE + "**", errorHandler, fieldLocator);
                     }
                 } else if (ParamType.INT.equals(paramType)) {
                     jInvocation = jInvocation.arg(JExpr.lit(Integer.parseInt(paramValue)));
                 } else {
-                    fatal("Attribute **" + EXECUTE_METHOD_PARAM_TYPE_ATTRIBUTE + "** of tag <" + EXECUTE_METHOD_PARAM + "> contains unsupported value: " + paramType, errorHandler, fieldLocator);
+                    fatal("Attribute **" + Names.EXECUTE_METHOD_PARAM_TYPE_ATTRIBUTE + "** of tag <" + Names.EXECUTE_METHOD_PARAM + "> contains unsupported value: " + paramType, errorHandler, fieldLocator);
                 }
             } else {
-                fatal("Tag <" + EXECUTE_METHOD_PARAM + "> must contain attribute **" + EXECUTE_METHOD_PARAM_TYPE_ATTRIBUTE + "**", errorHandler, fieldLocator);
+                fatal("Tag <" + Names.EXECUTE_METHOD_PARAM + "> must contain attribute **" + Names.EXECUTE_METHOD_PARAM_TYPE_ATTRIBUTE + "**", errorHandler, fieldLocator);
             }
         }
         fieldInitExpression = jInvocation;
